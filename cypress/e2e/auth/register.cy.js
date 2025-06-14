@@ -7,19 +7,13 @@ describe('Register User Tests', () => {
     registrationSetup();
   });
 
-  it('should register a new user with unique email', () => {
+ it('should register a new user with unique email', () => {
     cy.fixture('loginData').then((userData) => {
       const uniqueEmail = `test${Date.now()}@example.com`;
+      const password = userData.validUser.password;
 
-      cy.getByHref('/auth').first().click();
-      cy.getById('email').type(uniqueEmail);
-      cy.getById('password').type(userData.validUser.password);
-      cy.contains('button', 'SUBMIT').click();
-
-      cy.contains('a', 'Orders').should('be.visible');
-      cy.contains('a', 'Logout').should('be.visible');
-      cy.url().should('not.include', '/auth');
-
+      cy.registerUser(uniqueEmail, password);
+      
       Cypress.env('registeredEmail', uniqueEmail);
     });
   });
