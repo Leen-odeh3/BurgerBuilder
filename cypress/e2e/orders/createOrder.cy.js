@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
 
+import { orderActions } from '../../pageObjects/Order/OrderActions';
+import { orderAssertions } from '../../pageObjects/Order/OrderAssertions';
+
 describe('Create Burger Order', () => {
   beforeEach(() => {
     cy.fixture('loginData').then((userData) => {
@@ -7,46 +10,40 @@ describe('Create Burger Order', () => {
     });
   });
 
-  it('should create an order after building a burger', () => {
-    cy.contains('.BuildControl_Label__TQkTk', 'Meat')
-      .parent()
-      .within(() => {
-        cy.get('button').contains('More').click().click();
-      });
-
-    cy.get('button.BuildControls_OrderButton___M-Du')
-      .should('not.be.disabled')
-      .click();
-
-    cy.contains('Your Order').should('be.visible');
-    cy.contains('A delicious burger with the following ingredients:').should('be.visible');
-    cy.contains('Total Price:').should('contain', '6.00');
-    cy.get('button').contains('CONTINUE').should('be.visible');
-
-    cy.contains('CONTINUE').click();
-    cy.url().should('include', '/checkout');
-    cy.contains('We hope it tastes well!', { timeout: 10000 }).should('be.visible');
-    cy.contains('CONTINUE').click();
-
+  it('should register a new user and have no orders', () => {
     cy.fixture('loginData').then((userData) => {
-      const form = userData.formData;
+      const uniqueEmail = `test${Date.now()}@example.com`;
+      const password = userData.validUser.password;
 
-      cy.getById("name").type(form.name);
-      cy.getById("street").type(form.street);
-      cy.getById("zipCode").type(form.zipCode);
-      cy.getById("country").type(form.country);
-      cy.getById("email").type(userData.validUser.mail);
-      cy.getById('deliveryMethod').select('Fastest');
+      cy.registerUser(uniqueEmail, password);
+
+    orderActions.goToOrdersPage();
+      orderAssertions.assertNoOrders();
     });
+  });
 
-    cy.contains('button', 'ORDER').click();
+  it('should create an order after building a burger', () => {
+    cy.fixture('loginData').then(({ formData, validUser }) => {
+      orderActions
+        .addMeatIngredient(2)
+        .clickOrderButton();
 
-    cy.contains('Burger Builder').should('be.visible');
+      orderAssertions.assertOrderSummaryVisible();
 
-    cy.contains('a', 'Orders').click();
+      orderActions.clickContinue();
 
-    cy.contains('Ingredients:').should('be.visible');
-    cy.contains('meat (2)').should('be.visible');
-    cy.contains('Price: USD 6.00').should('be.visible');
+      orderAssertions.assertCheckoutPage();
+
+      orderActions
+        .clickContinue()
+        .fillCheckoutForm(formData, validUser.mail)
+        .clickOrder();
+
+      orderAssertions.assertOrderConfirmation();
+
+      orderActions.goToOrdersPage();
+
+      orderAssertions.assertOrderDetails();
+    });
   });
 });

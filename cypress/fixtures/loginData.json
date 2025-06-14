@@ -1,18 +1,16 @@
 {
   "validUser": {
-    "mail": "leenodeh@gmail.com",
-    "password": "leenodeh@gmail.com"
+    "mail": "leen.odeh287@gmail.com",
+    "password": "leen.odeh287@gmail.com"
   },
-
   "invalidUser": {
     "email": "wrong@email.com",
     "password": "wrongpassword"
   },
-"formData": {
-  "name": "Leen Odeh",
-  "street": "123 Main St",
-  "zipCode": "12345",
-  "country": "PS"
-}
-
+  "formData": {
+    "name": "Leen Odeh",
+    "street": "123 Main St",
+    "zipCode": "12345",
+    "country": "PS"
+  }
 }

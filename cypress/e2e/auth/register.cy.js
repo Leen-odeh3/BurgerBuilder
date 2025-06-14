@@ -6,7 +6,7 @@ describe('Register User Tests', () => {
   beforeEach(() => {
     registrationSetup();
   });
-
+  
  it('should register a new user with unique email', () => {
     cy.fixture('loginData').then((userData) => {
       const uniqueEmail = `test${Date.now()}@example.com`;
