@@ -26,6 +26,7 @@ Cypress.Commands.add('registerUser', (email, password) => {
 });
 
 Cypress.Commands.add('loginUser', (email, password) => {
+  cy.wait(1000);
   cy.visit('/auth');
   cy.containsWithTag('button', 'SWITCH TO SIGNIN').click();
   cy.getById('email').type(email);
