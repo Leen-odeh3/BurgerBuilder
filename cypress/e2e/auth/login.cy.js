@@ -1,52 +1,62 @@
 /// <reference types="cypress" />
 import { loginSetup } from '../../support/utilities/hooks';
+import { authActions } from '../../pageObjects/Auth/AuthActions';
+import { authAssertions } from '../../pageObjects/Auth/AuthAssertions';
 
 describe('Login User Test', () => {
   beforeEach(() => {
     loginSetup();
   });
 
-  it('Validate the user login with valid credentials', function () {
-    cy.fixture('loginData').then((userData) => {
+  it('Login with valid credentials', () => {
+    cy.fixture('loginData').then(({ validUser }) => {
       const uniqueEmail = `test${Date.now()}@example.com`;
-      const password = userData.validUser.password;
+      const password = validUser.password;
 
-      cy.getByHref('/auth').first().click();
-      cy.getById('email').type(uniqueEmail);
-      cy.getById('password').type(password);
-      cy.contains('button', 'SUBMIT').click();
-      cy.contains('a', 'Logout').should('be.visible');
-      cy.contains('a', 'Logout').click();
+      authActions
+        .visitAuthPage()
+        .fillEmail(uniqueEmail)
+        .fillPassword(password)
+        .submit()
+        .logout();
 
-      cy.loginUser(uniqueEmail, password);
-      cy.contains('a', 'Orders').should('be.visible');
-      cy.contains('a', 'Logout').should('be.visible');
-      cy.url().should('not.include', '/auth');
-      cy.contains('a', 'Logout').click();
-      cy.location('pathname').should('eq', '/');
+      authActions
+        .visitAuthPage()
+        .switchToSignin()
+        .fillEmail(uniqueEmail)
+        .fillPassword(password)
+        .submit();
+
+      authAssertions.assertLoginSuccess();
+
+      authActions.logout();
+
+      authAssertions.assertOnHomePage();
     });
   });
 
-  it('Validate show error message on login with invalid credentials', function () {
-    cy.fixture('loginData').then((userData) => {
-      cy.getByHref('/auth').first().click();
-      cy.contains('button', 'SWITCH TO SIGNIN').click();
+  it('Error on login with invalid credentials', () => {
+    cy.fixture('loginData').then(({ invalidUser }) => {
+      authActions
+        .visitAuthPage()
+        .switchToSignin()
+        .fillEmail(invalidUser.email)
+        .fillPassword(invalidUser.password)
+        .submit();
 
-      cy.getById('email').type(userData.invalidUser.email);
-      cy.getById('password').type(userData.invalidUser.password);
-      cy.contains('button', 'SUBMIT').click();
-
-      cy.contains('EMAIL_NOT_FOUND').should('be.visible');
+      authAssertions.assertErrorMessage('EMAIL_NOT_FOUND');
       cy.url().should('include', '/');
     });
   });
 
-  it('Validate error message when login fields are empty', function () {
-    cy.getByHref('/auth').first().click();
-    cy.contains('button', 'SWITCH TO SIGNIN').click();
-    cy.getById('email').clear();
-    cy.getById('password').clear();
-    cy.contains('button', 'SUBMIT').click();
-    cy.contains('INVALID_EMAIL').should('be.visible');
+  it('Error when fields are empty', () => {
+    authActions
+      .visitAuthPage()
+      .switchToSignin()
+      .fillEmail('')
+      .fillPassword('')
+      .submit();
+
+    authAssertions.assertErrorMessage('INVALID_EMAIL');
   });
 });
