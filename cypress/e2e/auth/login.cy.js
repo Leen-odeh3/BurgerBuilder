@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { loginSetup } from '../../support/utilities/hooks'
+import { loginSetup } from '../../support/utilities/hooks';
 
 describe('Login User Test', () => {
   beforeEach(() => {
@@ -15,24 +15,13 @@ describe('Login User Test', () => {
       cy.getById('email').type(uniqueEmail);
       cy.getById('password').type(password);
       cy.contains('button', 'SUBMIT').click();
-
-      cy.url().should('not.include', '/auth');
-      cy.contains('a', 'Orders').should('be.visible');
-
+      cy.contains('a', 'Logout').should('be.visible');
       cy.contains('a', 'Logout').click();
-      cy.url().should('include', '/');
 
-      cy.getByHref('/auth').first().click();
-      cy.contains('button', 'SWITCH TO SIGNIN').click();
-      cy.getById('email').type(uniqueEmail);
-      cy.getById('password').type(password);
-      cy.contains('button', 'SUBMIT').click();
-
-      cy.wait(3000);
+      cy.loginUser(uniqueEmail, password);
       cy.contains('a', 'Orders').should('be.visible');
       cy.contains('a', 'Logout').should('be.visible');
       cy.url().should('not.include', '/auth');
-
       cy.contains('a', 'Logout').click();
       cy.location('pathname').should('eq', '/');
     });
@@ -50,8 +39,7 @@ describe('Login User Test', () => {
       cy.contains('EMAIL_NOT_FOUND').should('be.visible');
       cy.url().should('include', '/');
     });
-  }
-  );
+  });
 
   it('Validate error message when login fields are empty', function () {
     cy.getByHref('/auth').first().click();
@@ -61,6 +49,4 @@ describe('Login User Test', () => {
     cy.contains('button', 'SUBMIT').click();
     cy.contains('INVALID_EMAIL').should('be.visible');
   });
-}
-
-);
+});

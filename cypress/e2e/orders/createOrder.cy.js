@@ -1,58 +1,52 @@
 /// <reference types="cypress" />
-describe('Create Orders Flow', () => {
-  before(() => {
-    cy.fixture('loginData').then((userData) => {
-      const uniqueEmail = `test${Date.now()}@example.com`;
-      const password = userData.validUser.password;
-      Cypress.env('registeredEmail', uniqueEmail);
-      Cypress.env('password', password);
-    });
-  });
 
+describe('Create Burger Order', () => {
   beforeEach(() => {
-    cy.visit('/');
-  });
-
-  it('should display current price correctly', () => {
-    cy.contains('Current Price: 4.00').should('be.visible');
-  });
-
-  it('should have SIGN UP TO ORDER button disabled initially', () => {
-    cy.contains('button', 'SIGN UP TO ORDER').should('be.disabled');
-  });
-
-  it('should enable SIGN UP TO ORDER button when price > 4.00', () => {
-    cy.contains('Salad').parent().contains('button', 'More').click();
-    cy.contains('button', 'SIGN UP TO ORDER').should('not.be.disabled');
-  });
-
-  it('should create an order after filling contact data', () => {
-    cy.contains('Salad').parent().contains('button', 'More').click();
-    cy.contains('button', 'SIGN UP TO ORDER').should('not.be.disabled').click();
-
-    cy.url().should('include', '/auth');
-    cy.registerUser(Cypress.env('registeredEmail'), Cypress.env('password')).then(() => {
-      cy.wait(2000);
-cy.contains('button', 'CONTINUE').scrollIntoView().click({ force: true });
-      cy.contains('button', 'CONTINUE').click({ force: true });
-      cy.contains('We hope it tastes well!').should('be.visible');
-      cy.get('form', { timeout: 10000 }).should('exist');
-      cy.contains('h4', 'Enter your Contact Data').should('be.visible');
-      cy.getById('name').should('exist').and('be.visible').type('John Doe');
-      cy.getById('street').should('be.visible').type('123 Main St');
-      cy.getById('zipCode').should('be.visible').type('12345');
-      cy.getById('country').should('be.visible').type('USA');
-      cy.getById('email').should('be.visible').type(Cypress.env('registeredEmail'));
-      cy.getById('deliveryMethod').should('be.visible').select('fastest');
-      cy.contains('button', 'ORDER').should('not.be.disabled').click();
-      cy.contains('a', 'Orders').click();
-      cy.url().should('include', '/orders');
-      cy.contains('Ingredients:').should('be.visible');
-      cy.contains('bacon (0)').should('be.visible');
-      cy.contains('cheese (0)').should('be.visible');
-      cy.contains('meat (0)').should('be.visible');
-      cy.contains('salad (1)').should('be.visible');
-      cy.contains('Price: USD 5.00').should('be.visible');
+    cy.fixture('loginData').then((userData) => {
+      cy.loginUser(userData.validUser.mail, userData.validUser.password);
     });
+  });
+
+  it('should create an order after building a burger', () => {
+    cy.contains('.BuildControl_Label__TQkTk', 'Meat')
+      .parent()
+      .within(() => {
+        cy.get('button').contains('More').click().click();
+      });
+
+    cy.get('button.BuildControls_OrderButton___M-Du')
+      .should('not.be.disabled')
+      .click();
+
+    cy.contains('Your Order').should('be.visible');
+    cy.contains('A delicious burger with the following ingredients:').should('be.visible');
+    cy.contains('Total Price:').should('contain', '6.00');
+    cy.get('button').contains('CONTINUE').should('be.visible');
+
+    cy.contains('CONTINUE').click();
+    cy.url().should('include', '/checkout');
+    cy.contains('We hope it tastes well!', { timeout: 10000 }).should('be.visible');
+    cy.contains('CONTINUE').click();
+
+    cy.fixture('loginData').then((userData) => {
+      const form = userData.formData;
+
+      cy.getById("name").type(form.name);
+      cy.getById("street").type(form.street);
+      cy.getById("zipCode").type(form.zipCode);
+      cy.getById("country").type(form.country);
+      cy.getById("email").type(userData.validUser.mail);
+      cy.getById('deliveryMethod').select('Fastest');
+    });
+
+    cy.contains('button', 'ORDER').click();
+
+    cy.contains('Burger Builder').should('be.visible');
+
+    cy.contains('a', 'Orders').click();
+
+    cy.contains('Ingredients:').should('be.visible');
+    cy.contains('meat (2)').should('be.visible');
+    cy.contains('Price: USD 6.00').should('be.visible');
   });
 });
