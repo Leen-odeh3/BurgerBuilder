@@ -17,7 +17,7 @@ describe('Login User Test', () => {
       cy.contains('button', 'SUBMIT').click();
 
       cy.url().should('not.include', '/auth');
-      cy.contains('a','Orders').should('be.visible');
+      cy.contains('a', 'Orders').should('be.visible');
 
       cy.contains('a', 'Logout').click();
       cy.url().should('include', '/');
@@ -29,12 +29,12 @@ describe('Login User Test', () => {
       cy.contains('button', 'SUBMIT').click();
 
       cy.wait(3000);
-      cy.contains('a','Orders').should('be.visible');
+      cy.contains('a', 'Orders').should('be.visible');
       cy.contains('a', 'Logout').should('be.visible');
       cy.url().should('not.include', '/auth');
 
       cy.contains('a', 'Logout').click();
-      cy.location('pathname').should('eq', '/');    
+      cy.location('pathname').should('eq', '/');
     });
   });
 
@@ -47,8 +47,20 @@ describe('Login User Test', () => {
       cy.getById('password').type(userData.invalidUser.password);
       cy.contains('button', 'SUBMIT').click();
 
-      cy.contains('EMAIL_NOT_FOUND').should('be.visible'); 
-      cy.url().should('include', '/auth');
+      cy.contains('EMAIL_NOT_FOUND').should('be.visible');
+      cy.url().should('include', '/');
     });
+  }
+  );
+
+  it('Validate error message when login fields are empty', function () {
+    cy.getByHref('/auth').first().click();
+    cy.contains('button', 'SWITCH TO SIGNIN').click();
+    cy.getById('email').clear();
+    cy.getById('password').clear();
+    cy.contains('button', 'SUBMIT').click();
+    cy.contains('INVALID_EMAIL').should('be.visible');
   });
-});
+}
+
+);
