@@ -16,33 +16,26 @@ describe('Create Burger Order', () => {
       const password = userData.validUser.password;
 
       cy.registerUser(email, password);
-
-    orderActions.goToOrdersPage();
+      orderActions.goToOrdersPage();
       orderAssertions.assertNoOrders();
     });
   });
 
-  it.only('should create an order after building a burger', () => {
+  it('should create an order after building a burger', () => {
     cy.fixture('loginData').then(({ formData, validUser }) => {
       orderActions
         .addMeatIngredient(2)
         .clickOrderButton();
 
       orderAssertions.assertOrderSummaryVisible();
-
       orderActions.clickContinue();
-
       orderAssertions.assertCheckoutPage();
-
       orderActions
         .clickContinue()
         .fillCheckoutForm(formData, validUser.mail)
         .clickOrder();
-
       orderAssertions.assertOrderConfirmation();
-
       orderActions.goToOrdersPage();
-
       orderAssertions.assertOrderDetails();
     });
   });
