@@ -1,14 +1,15 @@
 class OrderActions {
-  addMeatIngredient(times = 2) {
-    cy.contains('.BuildControl_Label__TQkTk', 'Meat')
-      .parent()
-      .within(() => {
-        for (let i = 0; i < times; i++) {
-          cy.get('button').contains('More').click();
-        }
-      });
-    return this;
-  }
+    
+addMeatIngredient(times = 2) {
+  cy.contains('.BuildControl_Label__TQkTk', 'Meat')
+    .parent()
+    .within(() => {
+      for (let i = 0; i < times; i++) {
+      cy.containsWithTag('button','More').click();
+      }
+    });
+  return this;
+}
 
   goToOrdersPage() {
   cy.containsWithTag('a', 'Orders').click();
@@ -39,11 +40,6 @@ class OrderActions {
 
   clickOrder() {
     cy.containsWithTag('button', 'ORDER').click();
-    return this;
-  }
-
-  goToOrdersPage() {
-    cy.containsWithTag('a', 'Orders').click();
     return this;
   }
 }

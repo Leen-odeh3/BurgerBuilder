@@ -2,7 +2,7 @@
 
 import { orderActions } from '../../pageObjects/Order/OrderActions';
 import { orderAssertions } from '../../pageObjects/Order/OrderAssertions';
-
+import {getUniqueEmail} from '../../support/utilities/emailUtils'
 describe('Create Burger Order', () => {
   beforeEach(() => {
     cy.fixture('loginData').then((userData) => {
@@ -12,12 +12,11 @@ describe('Create Burger Order', () => {
 
   it('should register a new user and have no orders', () => {
     cy.fixture('loginData').then((userData) => {
-      const uniqueEmail = `test${Date.now()}@example.com`;
+      const email = getUniqueEmail();
       const password = userData.validUser.password;
 
-      cy.registerUser(uniqueEmail, password);
-
-    orderActions.goToOrdersPage();
+      cy.registerUser(email, password);
+      orderActions.goToOrdersPage();
       orderAssertions.assertNoOrders();
     });
   });
@@ -29,20 +28,14 @@ describe('Create Burger Order', () => {
         .clickOrderButton();
 
       orderAssertions.assertOrderSummaryVisible();
-
       orderActions.clickContinue();
-
       orderAssertions.assertCheckoutPage();
-
       orderActions
         .clickContinue()
         .fillCheckoutForm(formData, validUser.mail)
         .clickOrder();
-
       orderAssertions.assertOrderConfirmation();
-
       orderActions.goToOrdersPage();
-
       orderAssertions.assertOrderDetails();
     });
   });

@@ -2,6 +2,7 @@
 import { loginSetup } from '../../support/utilities/hooks';
 import { authActions } from '../../pageObjects/Auth/AuthActions';
 import { authAssertions } from '../../pageObjects/Auth/AuthAssertions';
+import {getUniqueEmail} from '../../support/utilities/emailUtils';
 
 describe('Login User Test', () => {
   beforeEach(() => {
@@ -10,27 +11,13 @@ describe('Login User Test', () => {
 
   it('Login with valid credentials', () => {
     cy.fixture('loginData').then(({ validUser }) => {
-      const uniqueEmail = `test${Date.now()}@example.com`;
+      const email = getUniqueEmail();
       const password = validUser.password;
 
-      authActions
-        .visitAuthPage()
-        .fillEmail(uniqueEmail)
-        .fillPassword(password)
-        .submit()
-        .logout();
-
-      authActions
-        .visitAuthPage()
-        .switchToSignin()
-        .fillEmail(uniqueEmail)
-        .fillPassword(password)
-        .submit();
-
-      authAssertions.assertLoginSuccess();
-
+      cy.registerUser(email, password);
       authActions.logout();
-
+      cy.loginUser(email, password);
+      authActions.logout();
       authAssertions.assertOnHomePage();
     });
   });
