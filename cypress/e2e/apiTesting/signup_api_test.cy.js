@@ -20,4 +20,26 @@ describe('Firebase Sign Up API Test', () => {
       expect(response.body).to.have.property('localId');
     });
   });
+
+  it('should return error if email already exists', () => {
+  const email = 'leenodeh287@gmail.com'; 
+
+  cy.request({
+    method: 'POST',
+    url: 'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyBQ1kZviUNMJNYG_PezyUSawxN1JcHOD28',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: {
+      email: email,
+      password: '12345678',
+      returnSecureToken: true,
+    },
+    failOnStatusCode: false
+  }).then((response) => {
+    expect(response.status).to.eq(400);
+    expect(response.body.error.message).to.eq('EMAIL_EXISTS');
+  });
+});
+
 });
