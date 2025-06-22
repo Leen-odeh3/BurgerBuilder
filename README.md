@@ -4,7 +4,7 @@
 
 <hr/> 
 
-![Result](https://github.com/user-attachments/assets/9f9b8778-316d-4021-a3f1-d00ca5c72c42)
+![TestCasesPass](https://github.com/user-attachments/assets/da123727-f2bb-4716-b140-d96a01fb1e48)
 
 
 ## Register 
